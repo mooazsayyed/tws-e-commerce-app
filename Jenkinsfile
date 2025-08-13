@@ -32,6 +32,7 @@ pipeline {
         }
 
         stage('Build Main App Image') {
+            agent { label 'agent-test' }
             steps {
                 script {
                     sh 'docker system prune -af || true' // free space & memory
