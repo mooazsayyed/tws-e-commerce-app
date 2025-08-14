@@ -32,7 +32,6 @@ pipeline {
         }
 
         stage('Build Main App Image') {
-           agent { label 'docker-agent' }
             steps {
                 script {
                     sh 'docker system prune -af || true' // free space & memory
@@ -47,7 +46,6 @@ pipeline {
         }
 
         stage('Build Migration Image') {
-            agent { label 'docker-agent' }
             steps {
                 script {
                     sh 'docker system prune -af || true'
