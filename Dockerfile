@@ -1,41 +1,37 @@
-# Stage 1: Development/Build Stage
+# Stage 1: Build Stage
 FROM node:18-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Install necessary build dependencies
+# Install deps needed to build native modules
 RUN apk add --no-cache python3 make g++
 
-# Copy package files
+# Copy only package files first (for better caching)
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci
+# Install deps (use --frozen-lockfile for Yarn or ci for npm)
+RUN npm ci --omit=dev
 
-# Copy all project files
+# Copy rest of the code
 COPY . .
 
-# Build the Next.js application
+# Disable telemetry to save time
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build Next.js
 RUN npm run build
 
 # Stage 2: Production Stage
 FROM node:18-alpine AS runner
-
-# Set working directory
 WORKDIR /app
 
-# Copy necessary files from builder stage
+# Copy only needed output
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000
-
-# Expose the port the app runs on
 EXPOSE 3000
 
-# Command to run the application
 CMD ["node", "server.js"]
