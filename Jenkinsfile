@@ -15,6 +15,7 @@ pipeline {
         stage('Cleanup Workspace') {
             steps {
                 script {
+                    sh 'docker system prune -af || true' // Only here
                     clean_ws()
                 }
             }
@@ -34,7 +35,7 @@ pipeline {
         stage('Build Main App Image') {
             steps {
                 script {
-                    sh 'docker system prune -af || true' // free space & memory
+                    // sh 'docker system prune -af || true' // free space & memory
                     docker_build(
                         imageName: env.DOCKER_IMAGE_NAME,
                         imageTag: env.DOCKER_IMAGE_TAG,
@@ -48,7 +49,7 @@ pipeline {
         stage('Build Migration Image') {
             steps {
                 script {
-                    sh 'docker system prune -af || true'
+                    // sh 'docker system prune -af || true'
                     docker_build(
                         imageName: env.DOCKER_MIGRATION_IMAGE_NAME,
                         imageTag: env.DOCKER_IMAGE_TAG,
@@ -70,7 +71,7 @@ pipeline {
         stage('Security Scan with Trivy') {
             steps {
                 script {
-                    sh 'docker system prune -af || true'
+                    // sh 'docker system prune -af || true'
                     trivy_scan()
                 }
             }
